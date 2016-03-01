@@ -1,0 +1,12 @@
+{
+  "name": "prompt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app/index.js",
+  "scripts": {
+    "start": "node app/index.js",
+    "test": "karma start karma.conf.js"
+  },
+  "author": "Adam Faryna",
+  "license": "ISC"
+}
