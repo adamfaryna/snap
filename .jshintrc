@@ -2,7 +2,7 @@
   "curly": true,
   "eqeqeq": true,
   "immed": true,
-  "latedef": true,
+  "latedef": "nofunc",
   "newcap": true,
   "noarg": true,
   "sub": true,
@@ -19,8 +19,6 @@
     "beforeEach" : false,
     "after"      : false,
     "afterEach"  : false,
-    "angular"    : false,
-    "$"          : true,
     "jasmine"    : false,
     "inject"     : false,
     "expect"     : false

@@ -40,11 +40,11 @@ function askForNumberOfDecks() {
 function askForNumberCardsMaching() {
   console.log('Should the cards be matched on suit, value or both?');
 
-  const correctValues = ['suit, value, both'];
+  const correctValues = ['suit', 'value', 'both'];
   let prompt = 'Choose one of (';
 
   correctValues.forEach((val) => {
-    prompt += '\'' + val + '\'';
+    prompt += ' \'' + val + '\' ';
   });
 
   prompt += ') > ';
@@ -61,7 +61,7 @@ function askForNumberCardsMaching() {
       for (let i = 0; i !== correctValues.length; i++) {
         if (~answer.indexOf(correctValues[i])) {
           rl.removeListener('line', askForAnswerAndCheckItEvent);
-          resolve();
+          resolve(answer);
           return;
         }
       }

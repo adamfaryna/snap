@@ -1,6 +1,6 @@
 'use strict';
 
-var Gameplay = require('./gameplay');
+const Gameplay = require('./gameplay');
 
 process.stdin.resume(); //so the program will not close instantly
 
@@ -16,13 +16,12 @@ function exitHandler(options, err) {
     console.log('Something bad happened: ' + err.stack);
 
   } else if (options.exit) {
-    printExitMessage();
     process.exit();
   }
 }
 
 function printExitMessage() {
-  console.log('Thanks for playing. Bye!');
+  console.log('\nThanks for playing. Bye!');
 }
 
 new Gameplay().play();

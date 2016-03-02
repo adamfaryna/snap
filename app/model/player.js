@@ -17,6 +17,16 @@ class Player {
   grabCard(card) {
     this.cards.push(card);
   }
+
+  countCards() {
+    let sum = 0;
+
+    this.cards.forEach((card) => {
+      sum += card.value;
+    });
+
+    return sum;
+  }
 }
 
 module.exports = Player;

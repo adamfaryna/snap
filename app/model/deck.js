@@ -1,7 +1,7 @@
 'use strict';
 
-var constants = require('../constants.js');
-var Card = require('./card');
+const constants = require('../constants.js');
+const Card = require('./card');
 
 class Deck {
   constructor() {

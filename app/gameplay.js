@@ -1,46 +1,48 @@
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
-const PoolOfCards = require('./poolofcards');
-const playersAPI = require('./players');
-const promptAPI = require('./prompts');
+const PoolOfCards = require('./model/poolofcards');
+const playersAPI = require('./service/players');
+const promptAPI = require('./service/prompts');
 
 function printWelcomeMessage() {
   console.log('Welcome to snap game!');
 }
 
 class Gameplay {
-  constructor(numberOfPlayers) {
-    this.players = playersAPI.generatePlayers(numberOfPlayers);
-  }
+  constructor() {}
 
-  play() {
+  play(numberOfPlayers) {
     promptAPI.init();
     printWelcomeMessage();
 
-    var playSurface = [];
-    var machingMethod = null;
-    var numberOfDecks = null;
-    var poolOfCards = null;
+    let players = playersAPI.generatePlayers(numberOfPlayers);
+    let playSurface = [];
+    let machingMethod = null;
+    let poolOfCards = null;
 
-    var eventEmitter = new EventEmitter();
-    eventEmitter.on('newCardOnTheTable', checkCardsAndGrab);
+    let eventEmitter = new EventEmitter();
+    eventEmitter.on('newCardOnTheTable', function checkCardsAndGrab() {
+      if (playSurface.length < 2) {
+        return;
+      }
 
-    function checkCardsAndGrab() {
-      let firstCard = playSurface[playSurface.length() - 2];
-      let secondCard = playSurface[playSurface.length() - 1];
+      let firstCard = playSurface[playSurface.length - 2];
+      let secondCard = playSurface[playSurface.length - 1];
 
       if (compareCards(firstCard, secondCard)) {
         let player = playersAPI.getRandomPlayer();
         player.grabCards(playSurface);
+        console.log('Player ' + player.name + ' grabs cards: ' + JSON.stringify(playSurface));
 
         if (checkIfThePlayerIsWinner(player)) {
+          eventEmitter.emit('stopPuttingCardsOnTable');
           announceWinnerAndExit(player);
         }
 
         playSurface = [];
       }
-    }
+    });
 
     function checkIfThePlayerIsWinner(player) {
       return player.cards.length === poolOfCards.cards.length;
@@ -48,6 +50,19 @@ class Gameplay {
 
     function announceWinnerAndExit(player) {
       console.log('The winner is player ' + player.name + '!');
+      process.exit(0);
+    }
+
+    function announceWinnersAndExit() {
+      let result = playersAPI.getPlayersWithMostCards();
+      let message = result.length === 1 ? 'The winner is' : 'The winners are';
+
+      result.forEach((player) => {
+        message += ' ' + player.name;
+      });
+
+      message += '!';
+      console.log(message);
       process.exit(0);
     }
 
@@ -60,45 +75,63 @@ class Gameplay {
     }
 
     promptAPI.askForNumberOfDecks().then((result) => {
-      numberOfDecks = result;
-      poolOfCards = new PoolOfCards(numberOfDecks);
+      poolOfCards = new PoolOfCards(result);
 
     }).then(promptAPI.askForNumberCardsMaching).then((result) => {
       machingMethod = result;
 
     }).then(() => {
+      console.log('Shuffle cards.');
       poolOfCards.shuffle();
+      console.log('Cards shuffled.');
 
     }).then(() => {
+      console.log('Share cards to players.');
       shareCardsToPlayers();
+      console.log('Cards shared to players.');
 
     }).then(() => {
+      console.log('Put cards on the table.');
       putCardsOnTable();
     });
 
     function shareCardsToPlayers() {
-      for (let i = 0; i !== poolOfCards.length; i++) {
-        for (let j = 0; j !== this.players.length; i++) {
-          this.players[j].grabCard(poolOfCards[i]);
-        }
+      for (let i = 0, j = 0; i !== poolOfCards.cards.length; i++) {
+        j = j === players.length - 1 ? 0 : j + 1;
+        players[j].grabCard(poolOfCards.cards[i]);
       }
     }
 
     function putCardsOnTable() {
-      var i = 0;
+      let i = 0;
+      var ticker;
 
       (function timeout() {
-        setTimeout(() => {
-          playSurface.push(this.players[i++].giveCard());
+        ticker = setTimeout(() => {
+          let player = players[i++];
+          let card = player.giveCard();
 
-          if (i !== this.players.length) {
-            timeout();
+          if (!card) {
+            announceWinnersAndExit();
+            return;
+          }
 
-          } else {
+          playSurface.push(card);
+          eventEmitter.emit('newCardOnTheTable');
+          console.log('Player ' + player.name + ' put card ' + card.value + ' ' + card.suit + ' on the table.');
+
+          if (i === players.length) {
             i = 0;
           }
+
+          timeout();
         }, 500);
       })();
+
+      eventEmitter.once('stopPuttingCardsOnTable', () => {
+        clearTimeout(ticker);
+        announceWinnersAndExit();
+      });
     }
   }
 }
