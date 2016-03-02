@@ -117,8 +117,8 @@ class Gameplay {
           }
 
           playSurface.push(card);
-          eventEmitter.emit('newCardOnTheTable');
           console.log('Player ' + player.name + ' put card ' + card.value + ' ' + card.suit + ' on the table.');
+          eventEmitter.emit('newCardOnTheTable');
 
           if (i === players.length) {
             i = 0;
