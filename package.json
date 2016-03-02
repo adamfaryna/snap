@@ -1,14 +1,14 @@
 {
   "name": "snap",
   "version": "1.0.0",
-  "description": "Snap game simulation.",
-  "main": "app/index.js",
+  "description": "Snap card game simulation.",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node app/index.js",
+    "start": "node src/index.js",
     "test": "karma start karma.conf.js"
   },
   "author": "Adam Faryna",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-jshint": "^2.0.0",
